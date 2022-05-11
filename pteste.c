@@ -12,16 +12,6 @@ int Num_tarefas = 0;
 int Num_casos   = 0;
 int Num_falhas  = 0;
 
-typedef struct pilha
-{
-    int     *p_params;
-    struct pilha
-            *p_prox;
-}
-    pilha_t;
-
-extern pilha_t *desempilha(void);
-
 /*
  * main
  *
@@ -99,18 +89,6 @@ int main(int argc, char *argv[])
 	Num_falhas,
 	Num_casos
     );
-
-    printf("Pilha:\n");
-    pilha_t *p;
-    while( p = desempilha() ) {
-	printf("%02d: input(%d, %d) == %d\n",
-	    p->p_params[3],
-	    p->p_params[0],
-	    p->p_params[1],
-	    p->p_params[2]
-	);
-    }
-    printf("Num_tarefas: %d\n", Num_tarefas);
 
     /* E retornamos, indicando o sucesso de todo o processo */
     return 0;
