@@ -16,6 +16,9 @@
 *.gch
 *.pch
 
+# Vim swap files
+*.swp
+
 # Libraries
 *.lib
 *.a

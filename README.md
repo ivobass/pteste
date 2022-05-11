@@ -1,2 +1,2 @@
 # pteste
-Teste de pthreads
+Teste de função em C com pthreads
