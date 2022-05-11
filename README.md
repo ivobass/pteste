@@ -1,0 +1,2 @@
+# pteste
+Teste de pthreads
