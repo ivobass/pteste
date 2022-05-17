@@ -24,10 +24,10 @@ typedef struct caso {
 // Tipo de dados para indicar o tipo de relatório
 // de casos que desejamos ao final do programa
 typedef enum {
-    REL_NENHUM,
-    REL_SOMENTE_ERROS,
-    REL_SOMENTE_CORRETOS,
-    REL_COMPLETO
+    REL_NENHUM,			// Nenhum relatório é produzido
+    REL_SOMENTE_ERROS,		// Contém apenas erros (obtido != esperado)
+    REL_SOMENTE_CORRETOS,	// Contém apenas acertos (obtido == esperado)
+    REL_COMPLETO		// Relatório completo (erros e acertos)
 }
     tipo_relatorio_t;
 
