@@ -32,7 +32,7 @@ typedef enum {
     tipo_relatorio_t;
 
 // pilha de casos a serem processados
-pilha_t	Pilha_casos;
+extern pilha_t	Pilha_casos;
 
 /***********************************************************************
  * Funções de manipulação da pilha de casos
