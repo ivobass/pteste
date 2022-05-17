@@ -1,9 +1,17 @@
+/*
+ * UC: 21111 - Sistemas Operativos
+ * e-fólio B 2022 (pteste.c)
+ *
+ * Autor: 000000 - Marcelo Gomes
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
 
 #include "pteste.h"
+#include "tarefas.h"
 
 /*
  * Variáveis globais
@@ -19,9 +27,10 @@ int Num_falhas  = 0;
  */
 int main(int argc, char *argv[])
 {
-    int     ntarefas, nums[N_NUMS];
+    int     ntarefas;
     FILE    *fcasos;
     char    linha[BUFSIZ];
+    caso_t  *caso;
 
     // Se o número de argumentos for inválido, terminamos
     if( argc != 3 )
@@ -45,50 +54,57 @@ int main(int argc, char *argv[])
 	return errno;
     }
 
-    // Agora que temos certeza de que os parâmetros passados estão ok,
-    // podemos criar as tarefas
-    Num_tarefas = ntarefas;
-    while( ntarefas-- )
-    	// Se houver erro na criação, terminamos, indicando o problema
-	if( nova_tarefa() )
-	{
-	    perror("Criando tarefas");
-	    return errno;
-	}
-
-    /*
-     * Inicializa a pilha, para que possamos empilhar parâmetros de casos,
-     * a serem executados pelas tarefas
-     */
-    if( inicializa_pilha() )
-    {
-	// Mas, se houver erro, indica o problema
-	perror("Inicializando a pilha");
-	return errno;
-    }
+    // Inicializa as estruturas de dados usadas pelas rotinas
+    // de manipulação de tarefas e da pilha de casos
+    inicializa_tarefas();
 
     // Agora podemos ler o arquivo de casos, linha a linha
     while( fgets(linha, sizeof(linha), fcasos) == linha )
     {
-	// lendo 3 inteiros em cada linha, ...
-	sscanf(linha, " %d %d %d ", nums, nums+1, nums+2);
-	// ... e empilhando os argumentos lidos
-	if( empilha(nums) )
-	{
-	    perror("Empilhando parâmetros");
+	// Aloca memória para os parâmetros e, se falhar,
+	if( (caso = malloc(sizeof(caso_t))) == (caso_t *) NULL )
+	    // indica a condição de erro
+	    return errno;
+
+	// Armazena o número da linha que acaba se ser lida
+	// como o número do caso a testar
+	caso->num_caso = ++Num_casos;
+
+	// lê 3 inteiros em cada linha, ...
+	sscanf(linha, " %d %d %d ",
+	    & caso->param1,
+	    & caso->param2,
+	    & caso->esperado
+	);
+
+	// ... e empilha o caso de teste recém-lido
+	if( empilha_caso(& Pilha_casos, caso) ) {
+	    perror("Empilhando um caso lido");
 	    return errno;
 	}
     }
     // Ao final, fechamos o arquivo de casos
     fclose(fcasos);
 
-    // Imprimimos os resultados
+    // Agora que temos certeza de que os parâmetros passados estão ok,
+    // e que os casos estão na pilha, podemos criar as tarefas.
+    while( ntarefas-- )
+	nova_tarefa();
+
+    // Agora as tarefas farão todo o processamento. Só o que temos
+    // a fazer é Aguardar até que todas elas tenham terminado.
+    aguarda_tarefas();
+
+    // Em seguida, imprimimos o sumário dos resultados,
     printf("Resultados:\nSucesso: %d\nFalhas: %d\nTotal de casos: %d\n",
 	Num_casos - Num_falhas,
 	Num_falhas,
 	Num_casos
     );
 
-    // E retornamos, indicando o sucesso de todo o processo
+    // imprimimos o relatório, caso a caso, dos que tiveram erros
+    imprime_relatorio_de_casos(REL_SOMENTE_ERROS);
+
+    // ... e retornamos, indicando o sucesso de todo o processo
     return 0;
 }

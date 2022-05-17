@@ -4,82 +4,114 @@
 
 #include "pilha.h"
 #include <stdlib.h> // por conta de malloc() e free()
+#include <errno.h>  // pelos códigos de erro (EINVAL)
 
 /*
  * Cria uma pilha
+ *
+ * pilha: ponteiro para um ponteiro para a pilha,
+ *	que será inicializado com o ponteiro para
+ *	a pilha recém criada, em caso de sucesso,
+ *	ou com NULL, caso contrário.
+ *
+ * Retorna:
+ *	0 - indica sucesso
+ *	1 - indica argumento inválido (ponteiro nulo)
  */
-int cria_pilha(pilha_t **pilha)
+int cria_pilha(pilha_t *pilha)
 {
-    // Aloca memória para a primeira entrada da pilha e, se falhar,
-    if( (*pilha = malloc(sizeof(pilha_t))) == (pilha_t *) NULL )
-	// indica a condição de erro
-	return 1;
+    // Testa para ver se o ponteiro para ponteiro de
+    // pilha é válido
+    if( pilha == (pilha_t *) NULL )
+	return errno = EINVAL;
 
-    // Inicializa o ponteiro para o próximo elemento
-    (*pilha)->p_prox = (pilha_t *) NULL;
+    // Indica que ainda não há elementos na pilha
+    *pilha = (pilha_t) NULL;
 
-    // Esse primeiro elemento, na verdade, é 'fake', e só
-    // existe para evitar tratamento de exceções
-
+    // Informa que a criação foi bem-sucedida
     return 0;
 }
 
 /*
- * Coloca dados na pilha
+ * Coloca um elemento de dados na pilha
+ *
+ * pilha: ponteiro para a pilha a ser manipulada
+ * dados: ponteiro para os dados a serem colocados na pilha
+ *	  A área para onde 'dados' aponta deve ter sido
+ *	  previamente alocada pelo chamador; no entanto,
+ *	  é lĩcito empilhar um ponteiro nulo.
+ *
+ * Retorna:
+ *	0 - indica sucesso
+ *	1 - indica erro, e retorna o código em errno
  */
 int empilha(pilha_t *pilha, void *dados)
 {
-    pilha_t *p;
+    pilha_t p;
+
+    // Testa para ver se o ponteiro para ponteiro de
+    // pilha é válido
+    if( pilha == (pilha_t *) NULL )
+	return errno = EINVAL;
 
     // Aloca memória para a entrada na pilha e, se falhar,
-    if( (p = malloc(sizeof(pilha_t))) == (pilha_t *) NULL )
-	// indica a condição de erro
-	return 1;
+    if( (p = malloc(sizeof(pilha_t))) == (pilha_t) NULL )
+	// retorna o código indicando a condição de erro
+	return errno;
 
     // Preenche essa entrada com os parâmetros
-    p->p_params = dados;
+    p->p_dados = dados;
     // ... e indica que este é o último elemento da pilha
-    p->p_prox = (pilha_t *) NULL;
-
-    // Percorre a pilha até o último elemento
-    while( pilha->p_prox )
-	pilha = pilha->p_prox;
+    p->p_prox = *pilha;
 
     // Coloca o elemento recém-alocado na pilha
-    pilha->p_prox = p;
+    *pilha = p;
 
     // Retorna indicando que tudo correu bem
     return 0;
 }
 
 /*
- * Remove da pilha um conjunto de dados
+ * Remove da pilha um elemento de dados
+ *
+ * pilha: ponteiro para a pilha a ser manipulada
+ *
+ * Retorna:
+ *	ponteiro para os dados até então contidos no elemento
+ *	recém removido da pilha
  */
 void *desempilha(pilha_t *pilha)
 {
-    pilha_t *p, *q = pilha;
+    pilha_t p;
     void    *dados;
 
-    for( p = pilha; p->p_prox; p = p->p_prox )
-	q = p;
+    // Testa para ver se o ponteiro para ponteiro de
+    // pilha é válido
+    if( pilha == (pilha_t *) NULL ) {
+	errno = EINVAL;
 
-    // Se for o primeiro elemento da lista encadeada, é o
-    // elemento 'fake', o que indica que não há elementos na pilha
-    if( p == pilha )
-	return (void *) NULL;
-    // caso contrário,
-    else
-    {
-	// Marcamos o fim da pilha no elemento anterior,
-	q->p_prox = (pilha_t *) NULL;
-
-	// guardamos os dados a serem retornados,
-	dados = p->dados;
-
-	// liberamos a memória ocupada por esse elemento de pilha,
-	free(p);
-
-	// e finalmente entregamos os dados ao chamador.
-	return dados;
+	return (void *) NULL; // Se não houver, já retorna NULL
     }
+
+    // Guarda o ponteiro para o elemento que até então
+    // esteve no topo da pilha
+    p = *pilha;
+
+    // Testa para ver se ainda há algum elemento na pilha
+    if( p == (pilha_t) NULL )
+	return (void *) NULL; // Se não houver, já retorna NULL
+
+    // Faz o ponteiro para a pilha apontar para o
+    // elemento seguinte, efetivamente removendo o
+    // elemento do topo
+    *pilha = p->p_prox;
+
+    // guardamos os dados a serem retornados,
+    dados = p->p_dados;
+    // liberamos a memória ocupada por esse elemento de pilha,
+    free(p);
+    // indicamos que não houve erro,
+    errno = ENOERR;
+    // e finalmente entregamos os dados ao chamador.
+    return dados;
 }

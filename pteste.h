@@ -3,9 +3,18 @@
 
 #define N_NUMS 3
 
-extern int inicializa_pilha(void);
-extern int nova_tarefa(void);
-extern int empilha(int *nums);
+/*-----------------------------------------------------------*
+ *  Variáveis globais
+ *-----------------------------------------------------------*/
+
+extern int Num_falhas;
+extern int Num_tarefas;
+extern int Num_casos;
+
+/*-----------------------------------------------------------*
+ *  Funções globais
+ *-----------------------------------------------------------*/
+
 extern int Combinacoes(int n, int r);
 
 #endif /* PTESTE_H */

@@ -5,16 +5,18 @@
 #ifndef _PILHA_H
 #define _PILHA_H
 
+#define ENOERR	0 // Código de 'erro' para indicar que não houve erro
+
 // Tipo de dados para representar a pilha
 typedef struct pilha {
     struct pilha
 	    *p_prox;	// próximo elemento da pilha
     void    *p_dados;	// dados associados a esse elemento
 }
-    pilha_t;
+    *pilha_t;
 
 // Criação de pilhas
-extern int cria_pilha(pilha_t **pilha);
+extern int cria_pilha(pilha_t *pilha);
 
 // Empilhamento de dados (coloca dados na pilha)
 extern int empilha(pilha_t *pilha, void *dados);
