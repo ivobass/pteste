@@ -42,8 +42,8 @@ int cria_pilha(pilha_t *pilha)
  *	  é lĩcito empilhar um ponteiro nulo.
  *
  * Retorna:
- *	0 - indica sucesso
- *	1 - indica erro, e retorna o código em errno
+ *	0	- indica sucesso
+ *	!= 0	- significa um código de erro, como em errno
  */
 int empilha(pilha_t *pilha, void *dados)
 {
